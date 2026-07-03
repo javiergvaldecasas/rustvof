@@ -1,0 +1,68 @@
+# Paddle wavemaker over a 5% sloping beach
+#
+# A piston wavemaker generates H = 0.5 m waves in a 1.0 m deep flat region.
+# The waves then shoal and break on a 5% (1:20) slope acting as a beach.
+#
+#   |P|   flat bottom (d = 1.0 m)        5% slope up to the still-water line
+#   | |============================____________________________
+#   x=0  x=0.5 (paddle)          x=8                          x=28   x=30
+
+[solver]
+pressure_solver = "iterative"
+max_iter = 1000
+tolerance = 1e-4
+
+[domain]
+length_x = 30.0    # 8 m flat + 20 m slope + 2 m dry beach
+length_y = 1.5     # room for the 1.0 m water column + crest + air
+nx = 300           # 0.1 m (10 cm) resolution in x
+ny = 30            # 0.05 m (5 cm) resolution in y
+
+[time]
+t_end = 30.0       # let several waves propagate, shoal and break
+dt_output = 0.1
+cfl = 0.4
+dt_max = 0.005
+
+[fluid]
+rho_water = 1000.0
+rho_air = 1.225
+nu_water = 1.0e-6   # kinematic viscosity of water (m²/s)
+nu_air = 1.5e-5
+gravity = 9.81
+
+[turbulence]
+enabled = true
+model = "k-epsilon"
+intensity = 0.05      # 5% turbulence intensity
+length_scale = 0.1    # ~10 cm (fraction of water depth)
+
+[initial_condition]
+water_level = 1.0  # 1.0 m still water depth
+
+[wave]
+enabled = true
+type = "periodic"
+height = 0.5       # 0.5 m wave height
+period = 3.0       # 3.0 s period
+depth = 1.0        # depth in the flat region (= water_level)
+paddle_x0 = 0.5    # paddle oscillates around x = 0.5 m from the left wall
+
+[bathymetry]
+type = "slope"
+slope_start_x = 8.0    # slope starts at x = 8 m
+slope_start_y = 0.0    # bottom at y = 0 m
+slope_end_x = 28.0     # slope ends at x = 28 m
+slope_end_y = 1.0      # bottom rises to y = 1.0 m  ->  1.0/20 = 5% slope
+
+[output]
+format = "both"
+prefix = "output/paddle_slope"
+frames_per_file = 0
+
+[probes]
+enabled = true
+# path is taken relative to the output prefix directory (output/)
+file = "paddle_slope_probes.csv"
+# wave gauges: 2 in the flat region, then along the slope toward the shoreline
+wave_gauges = [2.0, 6.0, 10.0, 14.0, 18.0, 22.0, 26.0]

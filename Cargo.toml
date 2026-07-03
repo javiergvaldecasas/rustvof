@@ -1,0 +1,49 @@
+[package]
+name = "rustvof"
+version = "0.1.0"
+edition = "2021"
+authors = ["Javier García-Valdecasas"]
+description = "2D VOF solver for wave simulation"
+license = "MIT"
+
+[dependencies]
+# N-dimensional arrays
+ndarray = "0.15"
+
+# Serialization (TOML config)
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
+
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+
+# Logging
+log = "0.4"
+env_logger = "0.10"
+
+# CPU parallelism
+rayon = "1.8"
+
+# VTK writing
+vtkio = "0.6"
+
+# NetCDF-3 writing (pure Rust, no C dependencies)
+netcdf3 = { version = "0.6", optional = true }
+
+# GPU compute (wgpu for Apple Metal / Vulkan / DX12)
+wgpu = "0.19"
+pollster = "0.3"  # For block_on async
+bytemuck = { version = "1.14", features = ["derive"] }  # Pod types for GPU
+
+[features]
+default = ["gpu", "netcdf-output"]
+gpu = []
+cpu-only = []
+netcdf-output = ["netcdf3"]
+
+[dev-dependencies]
+approx = "0.5"
+
+[profile.release]
+opt-level = 3
+lto = true
